@@ -1,5 +1,6 @@
 package com.seven.crypition;
 
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -28,12 +29,12 @@ public class Cryption {
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
-    public static String desencryption(String key, String date) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public static byte[] desencryption(byte[] key, byte[] date) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(DES_CRYPTION);
         SecretKeySpec secretKeySpec = getByteKey(key);
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
-        byte[] encryptDate = cipher.doFinal(date.getBytes());
-        return ConvertUtil.bytesToHexString(encryptDate);
+        byte[] encryptDate = cipher.doFinal(date);
+        return encryptDate;
     }
 
 
@@ -49,12 +50,12 @@ public class Cryption {
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
      */
-    public static String desdecryption(String key, String enDate) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public static byte[] desdecryption(byte[] key, byte[] enDate) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(DES_CRYPTION);
         SecretKeySpec secretKeySpec = getByteKey(key);
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-        byte[] decryptionDate = cipher.doFinal(ConvertUtil.hexStringToByte(enDate));
-        return new String(decryptionDate);
+        byte[] decryptionDate = cipher.doFinal(enDate);
+        return decryptionDate;
     }
 
     /**
@@ -132,8 +133,8 @@ public class Cryption {
      * @param key
      * @return
      */
-    public static SecretKeySpec getByteKey(String key) {
-        byte[] keyBytes = key.getBytes();
+    public static SecretKeySpec getByteKey(byte[] key) {
+        byte[] keyBytes = key;
         //创建一个字节数组对密钥进行格式化
         byte[] byteTemp = new byte[8];
         for (int i = 0; i < keyBytes.length && i < byteTemp.length; i++) {
@@ -167,14 +168,15 @@ public class Cryption {
     public static final String DES_EDE = "DESede";
     public static final String DES_EDE_CRYPTION = "DESEDE/ECB/NoPadding";
 
-    public static void main(String[] args) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
-        String key = "springsk";
-        String date = "12345678";
+    public static void main(String[] args) throws IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
+        String key = "bc061946";
+        String date = "06735980";
         System.out.println("开始进行加密");
-        String enDate = desencryption(key, date);
-        System.out.println("加密结果====" + enDate);
-        String deDate = desdecryption(key, enDate);
-        System.out.println("解密结果====" + deDate);
+        byte[] enDate = desencryption(key.getBytes(), date.getBytes());
+        System.out.println("加密结果====" + ConvertUtil.bytesToHexString(enDate));
+        byte[] deDate = desdecryption(key.getBytes(), enDate);
+        System.out.println("解密结果====" + new String(deDate));
+
 
         String threeKey = "11223344556677881122334455667788";
         String threeDate = dataFill("12345");
